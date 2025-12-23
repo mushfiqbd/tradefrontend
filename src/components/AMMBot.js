@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTradingStateContext } from '../context/TradingStateContext';
 import { TradingContext } from '../context/TradingContext';
 import { logError } from '../utils/errorHandler';
@@ -34,11 +34,8 @@ const AMMBot = () => {
     setAsks,
     botIntervalRef,
     setTotalBaseVolume,
-    setFilledOrders,
-    filledOrders
+    setFilledOrders
   } = useTradingStateContext();
-
-  const { showNotification } = React.useContext(TradingContext);
 
   const [settings, setSettings] = useState({
     startPrice: 0.0012352,
@@ -63,14 +60,14 @@ const AMMBot = () => {
   const [priceClass, setPriceClass] = useState('');
   const prevPriceRef = useRef(settings.startPrice);
 
-  const logToBotOutput = (message) => {
+  const logToBotOutput = useCallback((message) => {
     const timestamp = new Date().toLocaleTimeString();
     setBotOutput(prev => {
       const newOutput = `[${timestamp}] ${message}\n${prev}`;
       const lines = newOutput.split('\n');
       return lines.slice(0, 100).join('\n');
     });
-  };
+  }, []);
 
   const placeOrders = useCallback(() => {
     try {
@@ -236,7 +233,7 @@ const AMMBot = () => {
         clearInterval(botIntervalRef.current);
       }
     };
-  }, []);
+  }, [botIntervalRef]);
 
   const handleSettingChange = (key, value) => {
     setSettings(prev => ({ ...prev, [key]: value }));
