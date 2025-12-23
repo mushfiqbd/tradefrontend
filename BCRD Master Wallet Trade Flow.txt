@@ -1,0 +1,67 @@
+        BCRD Master Wallet Trade Flow
+
+            Actors
+                     Master BCRD Wallet: Holds all BCRD ledger for payouts.
+                     Master BNB Wallet: Holds BNB liquidity and collects fees.
+                     User Wallet: Executes trades and receives PNL in BCRD.
+
+
+
+
+            Step-by-Step Trade Flow
+
+               Step 1: User closes trade with a PNL of 60 BCRD.
+               User calls closeTrade() on the smart contract.
+
+
+               Step 2: Master BCRD temporarily lends 60 BCRD to the user.
+
+
+               Step 3: Trade executes against Master BNB Wallet.
+               Example swap: 60 BCRD → 0.67 BNB.
+               Maker and Taker fees (in BNB) are applied and posted to Master BNB Wallet.
+
+
+               Step 4: BNB from trade (0.67 BNB) is returned to Master BNB Wallet.
+
+
+               Step 5: 60 BCRD PNL is credited to the user’s BCRD balance in the contract.
+
+
+
+
+            Trade Flow Table Example
+
+
+    https://codebeautify.org/htmlviewer                                                 11/7/25, 10 16 PM
+                                                                                              Page 1 of 2
+:
+               Step             Action         Amount                        Wallet
+
+                  1         Close Trade        60 BCRD                    User Wallet
+
+                  2           Lend PNL         60 BCRD            Master BCRD Wallet → User
+
+                  3         Trade Swap    60 BCRD → 0.67 BNB       User → Master BNB Wallet
+
+                  4         Return BNB         0.67 BNB                Master BNB Wallet
+
+                  5          Credit PNL        60 BCRD                    User Wallet
+
+
+
+
+            Key Notes
+                      BNB fees (maker/taker) are collected on-chain and sent to Master BNB
+                      Wallet.
+                      BCRD PNL is lent from Master BCRD and delivered to user on trade close.
+                      All balances, PNL, and fees are recorded on-chain for auditing.
+                      No external routers; all swaps are simulated internally in the contract.
+
+
+
+
+    https://codebeautify.org/htmlviewer                                                    11/7/25, 10 16 PM
+                                                                                                 Page 2 of 2
+:
+

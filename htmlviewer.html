@@ -1,0 +1,784 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Crypto Trading Bot Simulation</title><style>body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0;padding:0;background-color:#0d1117;color:#c9d1d9;display:flex;flex-direction:column;min-height:100vh}.container{display:flex;width:100%;flex-grow:1}.tab-nav{display:flex;justify-content:center;background-color:#161b22;border-bottom:2px solid #30363d}.tab-nav button{background-color:transparent;border:none;color:#c9d1d9;padding:15px 25px;font-size:1.1em;cursor:pointer;transition:background-color .2s,color .2s}.tab-nav button:hover{background-color:#21262d}.tab-nav button.active{background-color:#0d1117;color:#58a6ff;border-bottom:2px solid #58a6ff}.tab-content{display:none;width:100%;flex-grow:1;padding:20px}.tab-content.active{display:flex;flex-direction:column}.sidebar-amm{width:350px;background-color:#161b22;padding:20px;box-shadow:2px 0 5px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:15px;border-radius:8px}.sidebar-amm h2{color:#58a6ff;text-align:center;border-bottom:2px solid #21262d;padding-bottom:10px;margin-top:0}.input-group{margin-bottom:10px}.input-group label{display:block;margin-bottom:5px;font-weight:700;color:#8b949e;font-size:.9em}.input-group input[type=number],.input-group input[type=text]{width:100%;padding:10px;background-color:#0d1117;border:1px solid #30363d;color:#c9d1d9;border-radius:6px;box-sizing:border-box}.input-group-checkbox label{display:flex;align-items:center;cursor:pointer;color:#c9d1d9}.input-group-checkbox input[type=checkbox]{width:auto;margin-right:10px;transform:scale(1.2)}.btn-run{width:100%;padding:12px;background-color:#2ea44f;color:#fff;border:none;border-radius:6px;font-size:1.1em;cursor:pointer;transition:background-color .2s ease-in-out}.btn-run:hover{background-color:#2c974b}.btn-run.running{background-color:#d73a49}.btn-run.running:hover{background-color:#b92534}.output-box{background-color:#010409;border:1px solid #30363d;border-radius:6px;padding:15px;font-family:'Courier New',Courier,monospace;white-space:pre-wrap;overflow-y:auto;height:250px;font-size:.85em}.main-content-amm{flex-grow:1;padding:20px;display:flex;flex-direction:column;align-items:center}h1{color:#e0e0e0;text-align:center}.price-container{text-align:center;margin:15px 0}.last-price-display{font-size:2.5em;font-weight:700;color:#c9d1d9;transition:color .3s ease}.price-up{color:#2ea043}.price-down{color:#f85149}.order-book-container{display:flex;width:100%;max-width:800px;gap:20px}.asks-panel,.bids-panel{flex:1;background-color:#161b22;padding:15px;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,.5);height:600px;overflow-y:scroll}#settlement-history-wrapper::-webkit-scrollbar,.asks-panel::-webkit-scrollbar,.bids-panel::-webkit-scrollbar,.positions-table-wrapper::-webkit-scrollbar{width:8px}#settlement-history-wrapper::-webkit-scrollbar-track,.asks-panel::-webkit-scrollbar-track,.bids-panel::-webkit-scrollbar-track,.positions-table-wrapper::-webkit-scrollbar-track{background:#21262d}#settlement-history-wrapper::-webkit-scrollbar-thumb,.asks-panel::-webkit-scrollbar-thumb,.bids-panel::-webkit-scrollbar-thumb,.positions-table-wrapper::-webkit-scrollbar-thumb{background:#30363d;border-radius:4px}.asks-panel{border:1px solid rgba(248,81,73,.5)}.bids-panel{border:1px solid rgba(46,160,67,.5)}.asks-panel h3,.bids-panel h3{margin-top:0;text-align:center;padding-bottom:5px;border-bottom:1px solid #30363d}.asks-panel h3{color:#f85149}.bids-panel h3{color:#2ea043}.order-row{display:flex;justify-content:space-between;padding:4px 2px;font-family:monospace;font-size:.9em;transition:background-color .3s}.order-row.ask{color:#ff7b72}.order-row.bid{color:#7ee787}.order-row span{flex:1;text-align:right}.order-row span:first-child{text-align:left}.order-row span:nth-child(2){text-align:center}.order-header{font-weight:700;display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #444;margin-bottom:5px;font-size:.8em;color:#8b949e}@keyframes flash-green{from{background-color:rgba(46,160,67,.3)}to{background-color:transparent}}@keyframes flash-red{from{background-color:rgba(248,81,73,.3)}to{background-color:transparent}}.flash-bid{animation:flash-green .7s ease-out}.flash-ask{animation:flash-red .7s ease-out}.sidebar-api{width:350px;background-color:#161b22;padding:20px;box-shadow:2px 0 5px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:20px}.main-content-api{flex-grow:1;padding:20px;display:flex;flex-direction:column;align-items:center}.api-data-panel{width:100%;max-width:800px;margin-top:40px;background-color:#1e1e1e;padding:20px;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,.5)}pre{background-color:#000;color:#03dac6;padding:15px;border-radius:4px;overflow-x:auto;white-space:pre-wrap;word-wrap:break-word}.trade-terminal-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;width:100%;height:600px;position:relative}#wallet-settings-popout{display:none;position:absolute;top:60px;left:20px;z-index:50;background-color:#161b22;padding:20px;border-radius:12px;max-width:350px;width:100%;border:2px solid #58a6ff;box-shadow:0 0 20px rgba(88,166,255,.3);box-sizing:border-box}.modal-wallet-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}.btn-close,.btn-save{padding:10px 15px;border:none;border-radius:6px;cursor:pointer}.btn-save{background-color:#2ea44f;color:#fff}.btn-close{background-color:#30363d;color:#c9d1d9}.btn-save:hover{background-color:#2c974b}.btn-close:hover{background-color:#444c56}.trade-terminal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.btn-terminal-settings{background-color:#58a6ff;color:#0d1117;padding:8px 15px;border:none;border-radius:6px;font-weight:700;cursor:pointer;transition:background-color .2s}.btn-terminal-settings:hover{background-color:#79b8ff}.chart-container-wrapper{background-color:#161b22;padding:10px;border-radius:8px;display:flex;flex-direction:column}.trade-panel{display:flex;flex-direction:column;gap:30px}.trade-box{background-color:#161b22;padding:15px;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,.5);min-height:250px}.trade-box h2{font-size:1.2em;color:#c9d1d9;border-bottom:1px solid #30363d;padding-bottom:5px;margin-bottom:10px}.trade-box label{font-size:.85em}.trade-box input{padding:8px!important}.trade-book{flex-grow:1;background-color:#161b22;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,.5);height:100%;overflow:hidden}.trade-book-content{display:flex;flex-direction:column;height:calc(100% - 40px);padding:10px}.positions-table-wrapper{max-height:300px;overflow-y:auto;margin-top:20px}.positions-table{width:100%;border-collapse:collapse}.positions-table thead{position:sticky;top:0;background-color:#161b22;box-shadow:0 2px 2px rgba(0,0,0,.5);z-index:10}.positions-table td,.positions-table th{padding:8px 12px;text-align:left;border-bottom:1px solid #30363d;font-size:.85em}.positions-table th{color:#8b949e;font-weight:400;text-transform:uppercase}.btn-buy{background-color:#2ea44f;color:#fff;padding:10px;border-radius:6px;font-weight:700;transition:background-color .2s}.btn-sell{background-color:#d73a49;color:#fff;padding:10px;border-radius:6px;font-weight:700;transition:background-color .2s}.settlement-grid{display:grid;grid-template-columns:1fr 2fr;gap:20px;width:100%;margin-top:20px}.settlement-panel{background-color:#161b22;padding:20px;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,.5)}.stat-box{padding:15px;margin-bottom:15px;border-radius:6px;background-color:#0d1117;border:1px solid #30363d}.stat-box h4{color:#58a6ff;margin-top:0;margin-bottom:5px;font-size:1.1em}.stat-value{font-size:1.4em;font-weight:700;color:#c9d1d9}.master-wallet-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px}.trade-history-table{width:100%;border-collapse:collapse}.trade-history-table td,.trade-history-table th{padding:10px 12px;text-align:left;border-bottom:1px solid #30363d;font-size:.85em}.trade-history-table th{color:#8b949e;font-weight:400;text-transform:uppercase;position:sticky;top:0;background-color:#161b22}#settlement-history-wrapper{max-height:700px;overflow-y:auto}@media (max-width:1024px){.container,.tab-content.active{flex-direction:column}.sidebar-amm,.sidebar-api{width:100%;box-shadow:none;padding:10px}.trade-terminal-grid{grid-template-columns:1fr;height:auto}.trade-panel{flex-direction:column}.positions-table-wrapper{max-height:200px}#wallet-settings-popout{top:100px;left:5%;max-width:90%}.settlement-grid{grid-template-columns:1fr}.master-wallet-grid{grid-template-columns:1fr}}</style></head><body><div id="notification-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);align-items:center;justify-content:center;z-index:100"><div style="background-color:#161b22;padding:20px;border-radius:12px;max-width:350px;width:90%;border:1px solid #30363d"><h3 id="modal-title" style="font-size:1.5em;color:#58a6ff;margin-bottom:10px">Notification</h3><p id="modal-message" style="color:#c9d1d9;margin-bottom:20px"></p><button onclick='closeModal("notification")' style="width:100%;padding:10px;background-color:#58a6ff;color:#0d1117;border:none;border-radius:6px;cursor:pointer">Close</button></div></div>
+<div id="convert-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1002; justify-content:center; align-items:center;">
+    <div style="background-color:#161b22; padding:25px; border-radius:8px; width:350px;">
+        <h3 style="color:#58a6ff;">Convert BNB to BCRD</h3>
+        <p style="font-size:0.85em; color:#8b949e;">Current Price: 1 BNB = $<span id="bnb-usd-rate">380</span> USD. (1 BCRD = $1 USD)</p>
+        <div class="input-group" style="margin-top:15px;">
+            <label for="convert-amount-bnb">Amount to Convert (BNB):</label>
+            <input type="number" id="convert-amount-bnb" step="0.00001" value="1.0" min="0.00001">
+        </div>
+        <p style="margin-top:15px; font-weight:700;">You will receive: <strong id="converted-bcrd" style="color:#7ee787;">0.00</strong> BCRD</p>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+            <button class="btn-close" onclick='closeModal("convert")'>Cancel</button>
+            <button class="btn-save" onclick="convertBNBtoBCRD()">Convert</button>
+        </div>
+    </div>
+</div>
+<div class="tab-nav"><button id="amm-tab-btn" class="active" onclick='switchTab("amm")'>AMM Bot</button><button id="api-tab-btn" onclick='switchTab("api")'>API Manager</button><button id="chart-tab-btn" onclick='switchTab("chart")'>Trade Terminal (<span id="tab-name-display">BCRD/BNB Trade</span>)</button><button id="settlement-tab-btn" onclick='switchTab("settlement")'>Settlement Bot</button></div><div id="amm-tab" class="tab-content active"><aside class="sidebar-amm"><h2>BCRD AMM Bot Settings</h2><div class="input-group"><label for="start-price">Start Price (BNB)</label><input type="number" id="start-price" value="0.0012352" step="0.0000001"></div><div class="input-group"><label for="order-levels">Order Levels (Bids/Asks)</label><input type="number" id="order-levels" value="50" step="1"></div><div class="input-group"><label for="order-spread">Order Spread %</label><input type="number" id="order-spread" value="0.2" step="0.01"></div><div class="input-group"><label for="min-offers-per-level">Min Offers per Level</label><input type="number" id="min-offers-per-level" value="1" step="1"></div><div class="input-group"><label for="max-offers-per-level">Max Offers per Level</label><input type="number" id="max-offers-per-level" value="3" step="1"></div><div class="input-group"><label for="price-increment">Price Increment Multiplier</label><input type="number" id="price-increment" value="0.0000005" step="0.0000001"></div><div class="input-group"><label for="volatility">Price Volatility (Multiplier)</label><input type="number" id="volatility" value="0.0001" step="0.00001"></div><div class="input-group"><label for="auto-counter-percent">Auto Counter %</label><input type="number" id="auto-counter-percent" value="2" step="0.1"></div><div class="input-group"><label for="auto-counter-levels">Auto Counter Levels</label><input type="number" id="auto-counter-levels" value="1" step="1"></div><div class="input-group"><label for="update-interval">Update Interval (ms)</label><input type="number" id="update-interval" value="1000" step="100"></div><div class="input-group"><label for="funding-rate">Funding Rate (%)</label><input type="number" id="funding-rate" value="0.0001" step="0.00001"></div><div class="input-group"><label for="next-funding-rate">Next Funding Rate (%)</label><input type="number" id="next-funding-rate" value="0.00011" step="0.00001"></div><div class="input-group"><label for="next-funding-rate-timestamp">Next Funding Rate Timestamp (ms)</label><input type="number" id="next-funding-rate-timestamp" value="1672531200000" step="1000"></div><div class="input-group"><label for="maker-fee">Maker Fee (%)</label><input type="number" id="maker-fee" value="0.00025" step="0.00001"></div><div class="input-group"><label for="taker-fee">Taker Fee (%)</label><input type="number" id="taker-fee" value="0.00023" step="0.00001"></div><div class="input-group-checkbox"><label for="pause-trades"><input type="checkbox" id="pause-trades">Pause Simulated Trades</label></div><button class="btn-run" id="run-bot-btn" onclick="toggleBot()">Run AMM Bot</button><div class="output-box" id="bot-output">Bot is idle. Press 'Run AMM Bot' to start the simulation.</div></aside><main class="main-content-amm"><h1>BCRD-PERPBNB Order Book</h1><div class="price-container"><div class="last-price-display" id="last-price-display-amm">0.0012352</div></div><div class="order-book-container"><div class="asks-panel" id="asks-amm"><h3>Asks (Sell Orders)</h3><div class="order-header"><span>Price (BNB)</span><span>Quantity (BCRD)</span><span>Orders</span></div></div><div class="bids-panel" id="bids-amm"><h3>Bids (Buy Orders)</h3><div class="order-header"><span>Price (BNB)</span><span>Quantity (BCRD)</span><span>Orders</span></div></div></div></main></div><div id="api-tab" class="tab-content"><aside class="sidebar-api"><h2>API Endpoint Manager</h2><div id="endpoint-b1" class="endpoint-section"><h3>Endpoint B1 (Contracts)</h3><label for="ticker-id-b1">Ticker ID:</label><input type="text" id="ticker-id-b1" value="BCRD-PERPBNB" disabled="disabled"><div class="btn-group"><button class="btn-view" onclick='viewApi("b1")'>View API</button></div></div><div id="endpoint-b2" class="endpoint-section"><h3>Endpoint B2 (Contract Specs)</h3><label for="ticker-id-b2">Ticker ID:</label><input type="text" id="ticker-id-b2" value="BCRD-PERPBNB" disabled="disabled"><div class="btn-group"><button class="btn-view" onclick='viewApi("b2")'>View API</button></div></div><div id="endpoint-b3" class="endpoint-section"><h3>Endpoint B3 (Order Book)</h3><label for="ticker-id-b3">Ticker ID:</label><input type="text" id="ticker-id-b3" value="BCRD-PERPBNB" disabled="disabled"><div class="btn-group"><button class="btn-view" onclick='viewApi("b3")'>View Live Order Book API</button></div></div><div id="endpoint-b4" class="endpoint-section"><h3>Endpoint B4 (Orders)</h3><label for="ticker-id-b4">Ticker ID:</label><input type="text" id="ticker-id-b4" value="BCRD-PERPBNB" disabled="disabled"><div class="btn-group"><button class="btn-view" onclick='viewApi("b4")'>View API</button></div></div></aside><main class="main-content-api"><h1>API Data Viewer</h1><div class="api-data-panel"><h2>API Response</h2><pre id="api-data-viewer">Select an endpoint to view its data.</pre></div></main></div><div id="settlement-tab" class="tab-content"><h1>Exchange Settlement & Ledger</h1><div class="settlement-grid"><div class="settlement-panel"><h2>Master Wallet Balance (BCRD/BNB)</h2><div class="master-wallet-grid"><div class="stat-box"><h4>BCRD Holdings (Inventory)</h4><div class="stat-value" id="master-wallet-bcrd">100,000.00</div></div><div class="stat-box"><h4>EXCHNAGE FEES / SWAPS (BNB)</h4><div class="stat-value" id="master-wallet-bnb">5,000.00</div></div></div><h2>Settlement Statistics</h2><div class="stat-box"><h4>Overall Settled P&L (BCRD/USD)</h4><div class="stat-value" id="overall-pnl-bnb">0.00</div></div><div class="stat-box"><h4>24H Settled Trades</h4><div class="stat-value" id="settled-trades-24h">0</div></div><div class="stat-box"><h4>24H Volume (BCRD)</h4><div class="stat-value" id="volume-24h-bcrd">0.00</div></div></div><div class="settlement-panel"><h2>Trade History (Settled Positions)</h2><div id="settlement-history-wrapper"><table class="trade-history-table"><thead><tr><th>Close Time</th><th>Side</th><th>Amount</th><th>Entry Price</th><th>Exit Price</th><th>P&L (BCRD)</th></tr></thead><tbody id="settlement-history-body"><tr><td colspan="6" style="text-align:center;color:#8b949e">No trades settled yet.</td></tr></tbody></table></div></div></div></div><div id="chart-tab" class="tab-content" style="flex-direction:column"><div class="trade-terminal-header"><h1 style="margin:0;text-align:left">Trade Terminal</h1><button class="btn-terminal-settings" onclick="openWalletSettingsPopout()">⚙️ WEB3 Login</button></div><div class="trade-terminal-grid"><div id="wallet-settings-popout"><h3>Admin Terminal Login/Settings</h3><div class="input-group"><label for="wallet-address-input">Wallet Address (Simulated Login)</label><input type="text" id="wallet-address-input" placeholder="0x..." value="0x8920...2345"></div><div class="input-group"><label for="terminal-tab-name-input">Terminal Tab Name</label><input type="text" id="terminal-tab-name-input" placeholder="BCRD/BNB" value="BCRD/BNB Trade"></div><div class="modal-wallet-footer"><button class="btn-save" onclick="saveWalletSettings()">Save</button><button class="btn-close" onclick='closeModal("wallet")'>Close</button></div></div><div class="chart-container-wrapper"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:1.1em;color:#8b949e">Market Price (BCRD/BNB)</div><div class="last-price-display" id="last-price-display-trade" style="font-size:1.8em">0.0012352</div></div><div class="tradingview-widget-container" style="flex-grow:1;min-height:400px;width:100%"><div id="tradingview_widget" style="height:100%;width:100%"></div></div></div><div class="trade-panel"><div class="trade-box"><h2>Your Account (<span id="current-wallet-address">Not Connected</span>)</h2><div style="display:flex;justify-content:space-between;margin-bottom:10px;font-weight:700"><span style="color:#7ee787">BCRD Balance (Payout/Collateral):</span><span id="balance-bcrd">5,000.00</span></div><div style="display:flex;justify-content:space-between;margin-bottom:15px;font-weight:700"><span style="color:#ff7b72">BNB Balance (Fees/Gas):</span><span id="balance-bnb">100.00</span></div>
+<button class="btn-save" style="width:100%; margin-bottom: 20px;" onclick="showConvertModal()">Convert BNB to BCRD</button>
+<h2>Place Market Order</h2><div class="input-group"><label for="trade-amount-bcrd">Amount (BCRD)</label><input type="number" id="trade-amount-bcrd" value="1000" min="1" step="100"></div><div style="display:flex;gap:20px;margin-top:25px"><button class="btn-buy" style="flex:1" onclick='placeTrade("BUY")'>MARKET LONG</button><button class="btn-sell" style="flex:1" onclick='placeTrade("SELL")'>MARKET SHORT</button></div><p style="font-size:.75em;color:#8b949e;margin-top:10px">Orders execute against Best Bid/Ask.</p></div><div class="trade-book trade-box" style="padding:0;min-height:300px"><h2 style="padding:15px 15px 5px 15px;margin-bottom:0;border-bottom:1px solid #30363d">Order Book (BCRD/BNB)</h2><div class="trade-book-content"><div style="flex:1;overflow-y:hidden"><div id="asks-trade-container" style="display:flex;flex-direction:column-reverse;height:100%;justify-content:flex-end"><div class="order-header"><span>Price (BNB)</span><span>Quantity (BCRD)</span><span>Orders</span></div><div id="asks-trade" style="overflow-y:hidden"></div></div></div><div style="text-align:center;padding:5px 0;font-weight:700;color:#c9d1d9" id="best-price-indicator">---</div><div style="flex:1;overflow-y:hidden"><div id="bids-trade-container" style="height:100%"><div id="bids-trade" style="overflow-y:hidden"></div><div class="order-header"><span>Price (BNB)</span><span>Quantity (BCRD)</span><span>Orders</span></div></div></div></div></div></div></div><div class="trade-box" style="margin-top:20px"><h2>Open Positions (BCRD/BNB)</h2><div class="positions-table-wrapper"><table class="positions-table"><thead><tr><th>ID</th><th>Side</th><th>Amount (BCRD)</th><th>Entry Price</th><th>Current P&L (BCRD)</th><th>Actions</th></tr></thead><tbody id="positions-table-body"><tr><td colspan="6" style="text-align:center;color:#8b949e">No open positions.</td></tr></tbody></table></div></div></div><script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script><script>// --- Global Simulation Constants (NEW) ---
+    const BNB_USD_PRICE = 380.00; // Fixed BNB price for USD conversion
+    const BCRD_USD_PEGGED_PRICE = 1.0; // 1 BCRD = 1 USD
+    const DAY_IN_MS = 24 * 60 * 60 * 1000;
+
+    // --- Global Simulation State ---
+    let botInterval;
+    let isBotRunning = false;
+    let currentPrice = 0.0012352;
+    let bids = []; // Used by AMM tab and Trade tab
+    let asks = []; // Used by AMM tab and Trade tab
+    
+    // Trade Terminal State
+    let userBalances = {
+        bcrd: 5000.00,
+        bnb: 100.00
+    };
+    let openPositions = [];
+    let positionCounter = 0;
+    
+    // NEW: Settlement Bot State
+    let masterWalletBCRD = 100000.00; // Exchange inventory
+    let masterWalletBNB = 5000.00;   // Exchange collateral
+    let transactions = []; // Ledger of all closed trades/settlements
+    let overallSettledPNLBCRD = 0; // Cumulative P&L settled (RENAMED FROM PNLBNB)
+
+    // Wallet Settings State
+    let currentWalletAddress = "0x8920...2345"; // Initial simulated value
+    let terminalTabName = "BCRD/BNB Trade"; // Initial simulated value
+    
+    // Reactive state for API
+    let highPrice = 0;
+    let lowPrice = Infinity;
+    let totalBaseVolume = 1250000;
+    let filledOrders = [];
+    
+    // --- Mock API Data Store (with initial values) ---
+    const mockData = {
+        "BCRD-PERPBNB": {
+            b1: {
+                ticker_id: "BCRD-PERPBNB",
+                base_currency: "BCRD", 
+                quote_currency: "BNB", 
+                last_price: "0.0012352", 
+                base_volume: "1250000.00",
+                usd_volume: "463200.00",
+                quote_volume: "1544.00",
+                bid: "0.0012350",
+                ask: "0.0012355",
+                high: "0.0012500",
+                low: "0.0012200",
+                product_type: "Perpetual",
+                funding_rate: "0.0001",
+                next_funding_rate: "0.00011",
+                next_funding_rate_timestamp: "1672531200000",
+                maker_fee: "0.00025",
+                taker_fee: "0.00023",
+            },
+            b2: {
+                contract_type: "Linear",
+                contract_price: 1,
+                contract_price_currency: "BNB" 
+            },
+            b4: {
+                timestamp: Date.now(),
+                orders: []
+            }
+        }
+    };
+
+    // --- DOM Elements ---
+    const lastPriceDisplayAmm = document.getElementById('last-price-display-amm');
+    const lastPriceDisplayTrade = document.getElementById('last-price-display-trade');
+    const bidsContainerAmm = document.getElementById('bids-amm');
+    const asksContainerAmm = document.getElementById('asks-amm');
+    const bidsContainerTrade = document.getElementById('bids-trade');
+    const asksContainerTrade = document.getElementById('asks-trade');
+    const bestPriceIndicator = document.getElementById('best-price-indicator');
+    const botOutput = document.getElementById('bot-output');
+    const runBotBtn = document.getElementById('run-bot-btn');
+    const apiDataViewer = document.getElementById('api-data-viewer');
+    const positionsTableBody = document.getElementById('positions-table-body');
+    const currentWalletDisplay = document.getElementById('current-wallet-address'); 
+    const tabNameDisplay = document.getElementById('tab-name-display'); 
+    const walletPopout = document.getElementById('wallet-settings-popout'); 
+    
+    // NEW Settlement Bot DOM Elements
+    const masterWalletBCRDDisplay = document.getElementById('master-wallet-bcrd');
+    const masterWalletBNBDisplay = document.getElementById('master-wallet-bnb');
+    const overallPNLDisplay = document.getElementById('overall-pnl-bnb');
+    const settledTrades24HDisplay = document.getElementById('settled-trades-24h');
+    const volume24HDisplay = document.getElementById('volume-24h-bcrd');
+    const settlementHistoryBody = document.getElementById('settlement-history-body');
+
+    // --- UTILITY / MODAL ---
+    function showNotification(title, message) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-message').textContent = message;
+        document.getElementById('notification-modal').style.display = 'flex';
+    }
+
+    // Modified closeModal to handle different popouts and the new convert modal
+    window.closeModal = (type) => {
+        if (type === 'notification') {
+            document.getElementById('notification-modal').style.display = 'none';
+        } else if (type === 'wallet') {
+            walletPopout.style.display = 'none';
+        } else if (type === 'convert') { 
+             document.getElementById('convert-modal').style.display = 'none';
+        }
+    }
+
+    // NEW: BNB to BCRD Conversion Logic
+    window.showConvertModal = () => {
+        document.getElementById('bnb-usd-rate').textContent = BNB_USD_PRICE.toFixed(2);
+        const modal = document.getElementById('convert-modal');
+        modal.style.display = 'flex';
+        
+        const bnbInput = document.getElementById('convert-amount-bnb');
+        const convertedDisplay = document.getElementById('converted-bcrd');
+        
+        const updateConversion = () => {
+            const amountBNB = parseFloat(bnbInput.value) || 0;
+            // BCRD received = amountBNB * BNB_USD_PRICE (since 1 BCRD = $1 USD)
+            const amountBCRD = amountBNB * BNB_USD_PRICE; 
+            convertedDisplay.textContent = amountBCRD.toFixed(2);
+        };
+        
+        bnbInput.oninput = updateConversion;
+        updateConversion(); // Initial update
+    };
+
+    window.convertBNBtoBCRD = () => {
+        const amountBNB = parseFloat(document.getElementById('convert-amount-bnb').value);
+        if (isNaN(amountBNB) || amountBNB <= 0) {
+            showNotification("Invalid Amount", "Please enter a valid, positive BNB amount.");
+            return;
+        }
+        
+        if (amountBNB > userBalances.bnb) {
+            showNotification("Insufficient Funds", `You only have ${userBalances.bnb.toFixed(5)} BNB.`);
+            return;
+        }
+        
+        const amountBCRD = amountBNB * BNB_USD_PRICE;
+        
+        userBalances.bnb -= amountBNB;
+        userBalances.bcrd += amountBCRD;
+        
+        // Exchange Master Wallet perspective 
+        masterWalletBNB -= amountBNB; 
+        masterWalletBCRD += amountBCRD; 
+        
+        showNotification("Conversion Successful", `${amountBNB.toFixed(5)} BNB converted to ${amountBCRD.toFixed(2)} BCRD.`);
+        closeModal('convert');
+        renderBalances();
+        renderSettlementStats();
+    };
+
+    // ... existing wallet functions ...
+
+    window.openWalletSettingsPopout = () => {
+        // Load current values into the inputs before opening
+        document.getElementById('wallet-address-input').value = currentWalletAddress;
+        document.getElementById('terminal-tab-name-input').value = terminalTabName;
+        walletPopout.style.display = 'block';
+    }
+
+    window.saveWalletSettings = () => {
+        const newAddress = document.getElementById('wallet-address-input').value.trim();
+        const newTabName = document.getElementById('terminal-tab-name-input').value.trim();
+
+        if (newAddress === "") {
+            showNotification("Validation Error", "Wallet Address cannot be empty.");
+            return;
+        }
+
+        // Update global state and display
+        currentWalletAddress = newAddress;
+        terminalTabName = newTabName !== "" ? newTabName : "BCRD/BNB";
+
+        updateTradeTerminalHeader();
+        
+        closeModal('wallet');
+        showNotification("Settings Saved", "Wallet address and terminal tab name updated.");
+    }
+
+    function updateTradeTerminalHeader() {
+         // Truncate wallet address for display
+        const displayAddress = currentWalletAddress.length > 10 
+            ? `${currentWalletAddress.substring(0, 6)}...${currentWalletAddress.substring(currentWalletAddress.length - 4)}` 
+            : currentWalletAddress;
+
+        currentWalletDisplay.textContent = displayAddress;
+        tabNameDisplay.textContent = terminalTabName;
+    }
+
+    // --- RENDER FUNCTIONS FOR TRADE TERMINAL ---
+
+    function renderBalances() {
+        document.getElementById('balance-bcrd').textContent = `${userBalances.bcrd.toFixed(2)} BCRD`;
+        document.getElementById('balance-bnb').textContent = `${userBalances.bnb.toFixed(5)} BNB`;
+    }
+
+    function renderPositions() {
+        positionsTableBody.innerHTML = ''; 
+
+        if (openPositions.length === 0) {
+            positionsTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #8b949e; padding: 15px;">No open positions.</td></tr>';
+            return;
+        }
+
+        openPositions.forEach(position => {
+            const isLong = position.side === 'BUY';
+            // P&L calculation: (Current Price - Entry Price) * Amount * Side Multiplier (1 for BUY, -1 for SELL)
+            const pnlBNB = (currentPrice - position.entryPrice) * (isLong ? 1 : -1) * position.amount; 
+            // Convert P&L BNB to BCRD (USD Equivalent) for display
+            const pnlBCRD = pnlBNB * (BNB_USD_PRICE / BCRD_USD_PEGGED_PRICE);
+            
+            const pnlClass = pnlBCRD >= 0 ? '#2ea043' : '#f85149';
+            const rowClass = isLong ? 'background-color: rgba(46, 160, 67, 0.1);' : 'background-color: rgba(248, 81, 73, 0.1);';
+            
+            const row = `
+                <tr style="${rowClass}">
+                    <td>${position.id}</td>
+                    <td style="color: ${isLong ? '#7ee787' : '#ff7b72'}; font-weight: bold;">${position.side}</td>
+                    <td>${position.amount.toFixed(2)}</td>
+                    <td>${position.entryPrice.toFixed(7)}</td>
+                    <td style="color: ${pnlClass}; font-weight: bold;">${pnlBCRD.toFixed(2)} BCRD</td> 
+                    <td>
+                        <button onclick="closePosition(${position.id})"
+                            style="padding: 5px 10px; border: none; border-radius: 4px; background-color: #58a6ff; color: #0d1117; cursor: pointer;">
+                            Close
+                        </button>
+                    </td>
+                </tr>
+            `;
+            positionsTableBody.innerHTML += row;
+        });
+    }
+    
+    // NEW: Settlement Bot Render Functions
+    function renderSettlementStats() {
+        masterWalletBCRDDisplay.textContent = masterWalletBCRD.toFixed(2);
+        masterWalletBNBDisplay.textContent = masterWalletBNB.toFixed(5);
+        // Display PNL in BCRD/USD
+        overallPNLDisplay.textContent = overallSettledPNLBCRD.toFixed(2); 
+
+        const now = Date.now();
+        const trades24h = transactions.filter(t => (now - t.closeTime) < DAY_IN_MS);
+        
+        let volume24h = 0;
+        trades24h.forEach(t => { volume24h += t.amount; });
+
+        settledTrades24HDisplay.textContent = trades24h.length;
+        volume24HDisplay.textContent = volume24h.toFixed(2);
+
+        settlementHistoryBody.innerHTML = '';
+        if (transactions.length === 0) {
+            settlementHistoryBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #8b949e; padding: 15px;">No trades settled yet.</td></tr>';
+            return;
+        }
+        
+        transactions.forEach(t => {
+            const pnlClass = t.profitLossBCRD >= 0 ? '#2ea043' : '#f85149';
+            const row = `
+                <tr>
+                    <td>${new Date(t.closeTime).toLocaleTimeString()}</td>
+                    <td style="color: ${t.side === 'BUY' ? '#7ee787' : '#ff7b72'}; font-weight: bold;">${t.side}</td>
+                    <td>${t.amount.toFixed(2)}</td>
+                    <td>${t.entryPrice.toFixed(7)}</td>
+                    <td>${t.exitPrice.toFixed(7)}</td>
+                    <td style="color: ${pnlClass}; font-weight: bold;">${t.profitLossBCRD.toFixed(2)} BCRD</td> 
+                </tr>
+            `;
+            settlementHistoryBody.innerHTML += row;
+        });
+    }
+
+
+    // --- TRADING LOGIC ---
+    window.placeTrade = (side) => {
+        if (!isBotRunning) {
+            showNotification("Simulation Required", "Please run the AMM Bot first to enable trading.");
+            return;
+        }
+        
+        const amountInput = document.getElementById('trade-amount-bcrd');
+        const amount = parseFloat(amountInput.value);
+        const takerFeeRate = parseFloat(document.getElementById('taker-fee').value); // Use Taker Fee for gas/fees
+
+        if (isNaN(amount) || amount <= 0) {
+            showNotification("Invalid Amount", "Please enter a valid, positive BCRD amount.");
+            return;
+        }
+
+        const bestAskPrice = asks.length > 0 ? parseFloat(asks[0][0]) : null;
+        const bestBidPrice = bids.length > 0 ? parseFloat(bids[0][0]) : null;
+
+        let executionPrice = 0;
+
+        if (side === 'BUY') {
+            if (!bestAskPrice) { showNotification("Trade Error", "Order book is empty. Cannot buy."); return; }
+            executionPrice = bestAskPrice;
+        } else if (side === 'SELL') {
+            if (!bestBidPrice) { showNotification("Trade Error", "Order book is empty. Cannot sell."); return; }
+            executionPrice = bestBidPrice;
+        }
+        
+        // Calculate the fee in BNB based on the USD notional value
+        // Notional Value (USD) = Amount (BCRD) * BCRD_USD_PEGGED_PRICE
+        const NOTIONAL_USD = amount * BCRD_USD_PEGGED_PRICE; 
+        // Fee in BNB = (Notional USD * Taker Fee Rate) / BNB_USD_PRICE
+        const FEE_IN_BNB = (NOTIONAL_USD * takerFeeRate) / BNB_USD_PRICE;
+
+        // Simplified Collateral Check: Use BCRD balance as collateral against the USD notional value
+        if (NOTIONAL_USD > userBalances.bcrd) {
+             showNotification("Insufficient Collateral", `Need at least ${NOTIONAL_USD.toFixed(2)} BCRD collateral for this trade. You have ${userBalances.bcrd.toFixed(2)} BCRD.`);
+             return;
+        }
+        
+        // Fee Check (Paid in BNB)
+        if (FEE_IN_BNB > userBalances.bnb) {
+             showNotification("Insufficient Fees", `Need ${FEE_IN_BNB.toFixed(5)} BNB for fees. You have ${userBalances.bnb.toFixed(5)} BNB.`);
+             return;
+        }
+
+        // --- Execute Trade ---
+        
+        // 1. Deduct Fee in BNB
+        userBalances.bnb -= FEE_IN_BNB;
+        masterWalletBNB += FEE_IN_BNB; // Exchange receives the fee
+        
+        // 2. Adjust virtual collateral/margin asset
+        // The user's BCRD is implicitly used as collateral/margin. 
+        // We only track the position and settle PNL later in BCRD.
+        
+        // Add the new position
+        positionCounter++;
+        openPositions.push({
+            id: positionCounter,
+            side: side,
+            amount: amount,
+            entryPrice: executionPrice,
+            openTime: Date.now()
+        });
+
+        showNotification("Trade Executed", `${amount.toFixed(2)} BCRD ${side} @ ${executionPrice.toFixed(7)} BNB. Fee: ${FEE_IN_BNB.toFixed(5)} BNB.`);
+
+        renderBalances();
+        renderPositions();
+        renderSettlementStats(); // Update master wallet
+
+        // Mock execution fills a bit of the order book (optional)
+        if(side === 'BUY' && asks.length > 0) asks[0][1] = (parseFloat(asks[0][1]) - amount).toFixed(2);
+        if(side === 'SELL' && bids.length > 0) bids[0][1] = (parseFloat(bids[0][1]) - amount).toFixed(2);
+        renderOrderBooks(bids, asks);
+    }
+
+    window.closePosition = (positionId) => {
+        const positionIndex = openPositions.findIndex(p => p.id === positionId);
+        if (positionIndex === -1) return;
+
+        const position = openPositions[positionIndex];
+        const exitPrice = currentPrice; 
+        const isLong = position.side === 'BUY';
+        
+        // P&L calculation in the quote asset (BNB)
+        const profitLossBNB = (exitPrice - position.entryPrice) * (isLong ? 1 : -1) * position.amount;
+        
+        // --- P&L CONVERSION TO BCRD (Settlement Asset) ---
+        // P&L in BCRD = P&L in BNB * (BNB Price in USD / BCRD Price in USD)
+        const profitLossBCRD = profitLossBNB * (BNB_USD_PRICE / BCRD_USD_PEGGED_PRICE);
+        
+        // --- 1. SETTLEMENT LOGIC (Master Wallet Adjustment) ---
+        // Exchange takes the opposite P&L, settled in BCRD
+        const exchangeProfitLossBCRD = -profitLossBCRD; 
+
+        masterWalletBCRD += exchangeProfitLossBCRD; // Exchange's BCRD inventory changes
+        overallSettledPNLBCRD += exchangeProfitLossBCRD; // Track cumulative P&L in BCRD
+        
+        // --- 2. USER BALANCE UPDATE (Payout) ---
+        // Payout is in BCRD, added to user's BCRD balance
+        userBalances.bcrd += profitLossBCRD; 
+        
+        // --- 3. TRANSACTION LEDGER (Record Settlement) ---
+        transactions.unshift({
+            id: position.id,
+            side: position.side,
+            amount: position.amount,
+            entryPrice: position.entryPrice,
+            exitPrice: exitPrice,
+            profitLossBCRD: profitLossBCRD, 
+            closeTime: Date.now(),
+            userWallet: currentWalletAddress
+        });
+
+        // --- 4. Remove the position ---
+        openPositions.splice(positionIndex, 1);
+        
+        showNotification("Position Closed", 
+            `Closed ${position.amount.toFixed(2)} BCRD position at ${exitPrice.toFixed(7)} BNB. P&L: ${profitLossBCRD.toFixed(2)} BCRD (~$${profitLossBCRD.toFixed(2)}).`);
+
+        // --- 5. Rerender UI ---
+        renderBalances();
+        renderPositions();
+        renderSettlementStats();
+    }
+
+
+    // --- AMM BOT & PRICE SIMULATION (Modified to update trade tab) ---
+    function renderOrderBooks(newBids, newAsks) {
+        // Clear containers
+        const clearContainer = (container) => {
+            while (container.children.length > 1) { container.removeChild(container.lastChild); }
+        }
+        clearContainer(bidsContainerAmm);
+        clearContainer(asksContainerAmm);
+        bidsContainerTrade.innerHTML = ''; // Trade tab order book uses innerHTML for flexibility
+        asksContainerTrade.innerHTML = '';
+
+        // Render AMM Bot Tab
+        [...newAsks].reverse().forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'order-row ask flash-ask';
+            row.innerHTML = `<span>${item[0]}</span><span>${item[1]}</span><span>${item[2]}</span>`;
+            asksContainerAmm.appendChild(row);
+        });
+
+        newBids.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'order-row bid flash-bid';
+            row.innerHTML = `<span>${item[0]}</span><span>${item[1]}</span><span>${item[2]}</span>`;
+            bidsContainerAmm.appendChild(row);
+        });
+
+        // Render Trade Terminal Tab (Top 15 levels)
+        [...newAsks].slice(0, 15).reverse().forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'order-row ask';
+            row.innerHTML = `<span>${item[0]}</span><span>${item[1]}</span><span>${item[2]}</span>`;
+            asksContainerTrade.appendChild(row);
+        });
+        
+        bestPriceIndicator.textContent = currentPrice.toFixed(7);
+
+        newBids.slice(0, 15).forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'order-row bid';
+            row.innerHTML = `<span>${item[0]}</span><span>${item[1]}</span><span>${item[2]}</span>`;
+            bidsContainerTrade.appendChild(row);
+        });
+    }
+
+
+    function placeOrders() {
+        const orderLevels = parseInt(document.getElementById('order-levels').value);
+        const spread = parseFloat(document.getElementById('order-spread').value) / 100;
+        const baseSize = 1000;
+        const priceIncrement = parseFloat(document.getElementById('price-increment').value);
+        const minOffersPerLevel = parseInt(document.getElementById('min-offers-per-level').value);
+        const maxOffersPerLevel = parseInt(document.getElementById('max-offers-per-level').value);
+        
+        let newBids = [];
+        let newAsks = [];
+        
+        const midPrice = currentPrice;
+        let askPrice = midPrice * (1 + spread / 2);
+        let bidPrice = midPrice * (1 - spread / 2);
+
+        for (let i = 0; i < orderLevels; i++) {
+            const askOrderCount = Math.floor(Math.random() * (maxOffersPerLevel - minOffersPerLevel + 1)) + minOffersPerLevel;
+            const totalAskSize = baseSize * askOrderCount;
+            newAsks.push([askPrice.toFixed(7), totalAskSize.toFixed(2), askOrderCount]);
+            askPrice += priceIncrement * (1 + i * 0.1) * (0.9 + Math.random() * 0.2);
+
+            const bidOrderCount = Math.floor(Math.random() * (maxOffersPerLevel - minOffersPerLevel + 1)) + minOffersPerLevel;
+            const totalBidSize = baseSize * bidOrderCount;
+            newBids.push([bidPrice.toFixed(7), totalBidSize.toFixed(2), bidOrderCount]);
+            bidPrice -= priceIncrement * (1 + i * 0.1) * (0.9 + Math.random() * 0.2);
+        }
+
+        renderOrderBooks(newBids, newAsks);
+        bids = newBids;
+        asks = newAsks;
+    }
+
+    function simulationStep() {
+        if (!isBotRunning) return;
+
+        const volatility = parseFloat(document.getElementById('volatility').value);
+        const oldPrice = currentPrice;
+        
+        const change = (Math.random() - 0.5) * 2 * volatility;
+        currentPrice *= (1 + change);
+        
+        // Update all price displays and track high/low
+        lastPriceDisplayAmm.textContent = currentPrice.toFixed(7);
+        lastPriceDisplayTrade.textContent = currentPrice.toFixed(7);
+        
+        // Apply color change to the Trade tab price display
+        if (currentPrice > oldPrice) {
+            lastPriceDisplayTrade.classList.remove('price-down');
+            lastPriceDisplayTrade.classList.add('price-up');
+        } else if (currentPrice < oldPrice) {
+            lastPriceDisplayTrade.classList.remove('price-up');
+            lastPriceDisplayTrade.classList.add('price-down');
+        } else {
+            lastPriceDisplayTrade.classList.remove('price-up', 'price-down');
+        }
+
+        // Apply color change to the AMM tab price display
+        if (currentPrice > oldPrice) {
+            lastPriceDisplayAmm.classList.remove('price-down');
+            lastPriceDisplayAmm.classList.add('price-up');
+        } else if (currentPrice < oldPrice) {
+            lastPriceDisplayAmm.classList.remove('price-up');
+            lastPriceDisplayAmm.classList.add('price-down');
+        } else {
+            lastPriceDisplayAmm.classList.remove('price-up', 'price-down');
+        }
+
+        if (currentPrice > highPrice) highPrice = currentPrice;
+        if (currentPrice < lowPrice) lowPrice = currentPrice;
+        
+        // Update Trade Terminal P&L and Settlement Stats
+        renderPositions();
+        renderSettlementStats();
+
+        const pauseTradesCheckbox = document.getElementById('pause-trades');
+        if (!pauseTradesCheckbox.checked && asks.length > 0 && bids.length > 0) {
+            const bestAsk = parseFloat(asks[0][0]);
+            const bestBid = parseFloat(bids[0][0]);
+            const counterAmount = 1000;
+            const counterLevels = parseInt(document.getElementById('auto-counter-levels').value);
+            const counterRate = parseFloat(document.getElementById('auto-counter-percent').value) / 100;
+
+            // Check if an existing order is filled (implementation for fill logic remains the same)
+            if (currentPrice >= bestAsk) {
+                const filledSize = parseFloat(asks[0][1]);
+                logToBotOutput(`📈 ASK FILLED at ${bestAsk.toFixed(7)} for ${filledSize.toFixed(2)} BCRD.`);
+                totalBaseVolume += filledSize;
+
+                // Record the filled order for API B4
+                filledOrders.unshift({ order_id: `ORD${Date.now()}`, ticker_id: "BCRD-PERPBNB", side: "SELL", price: bestAsk.toFixed(7), size: filledSize.toFixed(2), status: "FILLED", type: "LIMIT" });
+                
+                // Place counter BID offers
+                for (let i = 1; i <= counterLevels; i++) {
+                    const counterPrice = bestAsk * (1 - (counterRate * i)); // Changed logic to be less aggressive for counter
+                    logToBotOutput(`➡️ COUNTER: Placing a new BID for ${counterAmount.toFixed(2)} BCRD at ${counterPrice.toFixed(7)} BNB.`);
+                    filledOrders.unshift({ order_id: `COUNTER_${Date.now() + i}`, ticker_id: "BCRD-PERPBNB", side: "BUY", price: counterPrice.toFixed(7), size: counterAmount.toFixed(2), status: "PENDING", type: "LIMIT" });
+                }
+            } else if (currentPrice <= bestBid) {
+                const filledSize = parseFloat(bids[0][1]);
+                logToBotOutput(`📉 BID FILLED at ${bestBid.toFixed(7)} for ${filledSize.toFixed(2)} BCRD.`);
+                totalBaseVolume += filledSize;
+
+                // Record the filled order for API B4
+                filledOrders.unshift({ order_id: `ORD${Date.now()}`, ticker_id: "BCRD-PERPBNB", side: "BUY", price: bestBid.toFixed(7), size: filledSize.toFixed(2), status: "FILLED", type: "LIMIT" });
+
+                // Place counter ASK offers 
+                for (let i = 1; i <= counterLevels; i++) {
+                    const counterPrice = bestBid * (1 + (counterRate * i));
+                    logToBotOutput(`➡️ COUNTER: Placing a new ASK for ${counterAmount.toFixed(2)} BCRD at ${counterPrice.toFixed(7)} BNB.`);
+                    filledOrders.unshift({ order_id: `COUNTER_${Date.now() + i}`, ticker_id: "BCRD-PERPBNB", side: "SELL", price: counterPrice.toFixed(7), size: counterAmount.toFixed(2), status: "PENDING", type: "LIMIT" });
+                }
+            }
+            if(filledOrders.length > 20) filledOrders.splice(20); // Keep history to last 20 trades
+        }
+        
+        placeOrders();
+    }
+
+
+    // --- AMM Bot Control ---
+    function toggleBot() {
+        if (isBotRunning) {
+            stopBot();
+        } else {
+            startBot();
+        }
+    }
+
+    function startBot() {
+        isBotRunning = true;
+        runBotBtn.textContent = 'Stop AMM Bot';
+        runBotBtn.classList.add('running');
+        botOutput.textContent = 'Starting simulation...\n';
+        
+        currentPrice = parseFloat(document.getElementById('start-price').value);
+        lastPriceDisplayAmm.textContent = currentPrice.toFixed(7);
+        lastPriceDisplayTrade.textContent = currentPrice.toFixed(7); // Sync trade tab price
+        
+        // Reset reactive API state
+        highPrice = currentPrice;
+        lowPrice = currentPrice;
+        filledOrders = [];
+        totalBaseVolume = 1250000 + Math.random() * 10000;
+
+
+        const updateInterval = parseInt(document.getElementById('update-interval').value);
+        placeOrders();
+        botInterval = setInterval(simulationStep, updateInterval);
+        
+        // Ensure trade tab UI reflects running state
+        renderBalances();
+        renderPositions();
+        renderSettlementStats(); // Initial render for settlement tab
+    }
+
+    function stopBot() {
+        isBotRunning = false;
+        clearInterval(botInterval);
+        runBotBtn.textContent = 'Run AMM Bot';
+        runBotBtn.classList.remove('running');
+        logToBotOutput('Simulation stopped.');
+        lastPriceDisplayTrade.classList.remove('price-up', 'price-down');
+        lastPriceDisplayAmm.classList.remove('price-up', 'price-down');
+    }
+
+    function logToBotOutput(message) {
+        const timestamp = new Date().toLocaleTimeString();
+        botOutput.textContent = `[${timestamp}] ${message}\n` + botOutput.textContent;
+        const lines = botOutput.textContent.split('\n');
+        if (lines.length > 100) {
+            botOutput.textContent = lines.slice(0, 100).join('\n');
+        }
+    }
+
+
+    // --- Tab Switching Logic ---
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-nav button').forEach(btn => btn.classList.remove('active'));
+
+        document.getElementById(`${tabId}-tab`).classList.add('active');
+        document.getElementById(`${tabId}-tab-btn`).classList.add('active');
+
+        // Close the wallet popout and convert modal whenever we switch tabs
+        walletPopout.style.display = 'none';
+        document.getElementById('convert-modal').style.display = 'none';
+
+        if (tabId === 'chart') {
+            loadTradingViewWidget();
+            renderBalances();
+            renderPositions();
+            // Force re-render of order book in the trade terminal
+            renderOrderBooks(bids, asks);
+        }
+        
+        // NEW: Load settlement stats when switching to the tab
+        if (tabId === 'settlement') {
+            renderSettlementStats();
+        }
+    }
+
+    let tradingViewWidgetLoaded = false;
+    function loadTradingViewWidget() {
+        if (tradingViewWidgetLoaded) return;
+        new TradingView.widget({
+            "autosize": true,
+            "symbol": "BINANCE:BNBUSDT",
+            "interval": "D",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "enable_publishing": false,
+            "hide_side_toolbar": false,
+            "allow_symbol_change": true,
+            "container_id": "tradingview_widget"
+        });
+        tradingViewWidgetLoaded = true;
+    }
+    
+    // --- API Manager Tab Logic (Kept as is) ---
+    function viewApi(endpointId) {
+        if (!isBotRunning && (endpointId === 'b1' || endpointId === 'b3' || endpointId === 'b4')) {
+             apiDataViewer.textContent = "Bot must be running to view live API data for this endpoint.";
+             return;
+        }
+
+        let tickerId = document.getElementById(`ticker-id-${endpointId}`).value.trim().toUpperCase();
+        let data;
+
+        switch (endpointId) {
+            case 'b1':
+                const b1_base = mockData[tickerId].b1;
+                const quoteVolume = totalBaseVolume * currentPrice;
+                const BNB_USD_PRICE_API = 380; // Simulated price for BNB
+                
+                // Get the editable values
+                const fundingRate = parseFloat(document.getElementById('funding-rate').value);
+                const nextFundingRate = parseFloat(document.getElementById('next-funding-rate').value);
+                const nextFundingRateTimestamp = parseInt(document.getElementById('next-funding-rate-timestamp').value);
+                const makerFee = parseFloat(document.getElementById('maker-fee').value);
+                const takerFee = parseFloat(document.getElementById('taker-fee').value);
+
+                data = {
+                    ...b1_base,
+                    last_price: currentPrice.toFixed(7),
+                    bid: bids.length > 0 ? bids[0][0] : "0.0000000",
+                    ask: asks.length > 0 ? asks[0][0] : "0.0000000",
+                    high: highPrice.toFixed(7),
+                    low: lowPrice.toFixed(7),
+                    base_volume: totalBaseVolume.toFixed(2),
+                    quote_volume: quoteVolume.toFixed(2),
+                    usd_volume: (quoteVolume * BNB_USD_PRICE_API).toFixed(2),
+                    funding_rate: (fundingRate * 100).toFixed(4) + "%",
+                    next_funding_rate: (nextFundingRate * 100).toFixed(4) + "%",
+                    next_funding_rate_timestamp: nextFundingRateTimestamp,
+                    maker_fee: (makerFee * 100).toFixed(4) + "%",
+                    taker_fee: (takerFee * 100).toFixed(4) + "%",
+                };
+                break;
+
+            case 'b2':
+                data = mockData[tickerId]?.b2;
+                break;
+
+            case 'b3':
+                data = {
+                    ticker_id: tickerId,
+                    timestamp: Date.now(),
+                    asks: asks.slice(0, 50).map(a => [a[0], a[1]]),
+                    bids: bids.slice(0, 50).map(b => [b[0], b[1]])
+                };
+                break;
+
+            case 'b4':
+                // Create a few mock "OPEN" orders from the live book
+                let openOrders = [];
+                if(bids.length > 5 && asks.length > 5){
+                    openOrders.push({
+                        order_id: `ORD_OPEN_${Date.now()+1}`, ticker_id: tickerId, side: "BUY",
+                        price: bids[4][0], size: (parseFloat(bids[4][1])*0.5).toFixed(2), status: "OPEN", type: "LIMIT"
+                    });
+                     openOrders.push({
+                        order_id: `ORD_OPEN_${Date.now()+2}`, ticker_id: tickerId, side: "SELL",
+                        price: asks[6][0], size: (parseFloat(asks[6][1])*0.3).toFixed(2), status: "OPEN", type: "LIMIT"
+                    });
+                }
+                data = {
+                    timestamp: Date.now(),
+                    orders: [...openOrders, ...filledOrders] // Show open orders first, then filled history
+                };
+                break;
+
+            default:
+                data = { error: "Unknown endpoint." };
+        }
+
+        apiDataViewer.textContent = JSON.stringify(data, null, 2);
+    }
+    
+    // --- Initial setup on page load ---
+    document.addEventListener('DOMContentLoaded', () => {
+        currentPrice = parseFloat(document.getElementById('start-price').value);
+        lastPriceDisplayAmm.textContent = currentPrice.toFixed(7);
+        lastPriceDisplayTrade.textContent = currentPrice.toFixed(7);
+        renderBalances();
+        renderPositions();
+        renderSettlementStats(); // Initial render for settlement bot data
+        updateTradeTerminalHeader(); // Initial header update
+        switchTab('amm'); // Default back to AMM tab
+    });</script></body></html>

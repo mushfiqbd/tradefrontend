@@ -1,0 +1,171 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract BCRDMaster {
+    address public admin;
+    address public pendingAdmin; // for two-step transfer
+
+    uint256 private masterBNBPool;
+    uint256 private masterBCRDPool;
+
+    uint256 public makerFeeBP = 25; // 0.25%
+    uint256 public takerFeeBP = 25; // 0.25%
+
+    struct UserTrade {
+        bool active;
+        uint256 usedBCRD;
+        uint256 pnlBCRD;
+        uint256 bnbFee;
+        uint256 makerFee;
+        uint256 takerFee;
+    }
+
+    mapping(address => UserTrade) public userTrades;
+    mapping(address => uint256) public userBCRDBalance;
+
+    // Events
+    event AdminDeposit(address indexed admin, uint256 bnbAmount, uint256 bcrdAmount);
+    event TradeOpened(address indexed user, uint256 bcrdUsed);
+    event TradeClosed(
+        address indexed user,
+        uint256 pnlBcrd,
+        uint256 bnbReturned,
+        uint256 makerFee,
+        uint256 takerFee,
+        uint256 gasFee
+    );
+    event FeeUpdated(uint256 makerFeeBP, uint256 takerFeeBP);
+    event AdminWithdrawal(uint256 bnbAmount);
+    event OwnershipTransferRequested(address indexed currentAdmin, address indexed newAdmin);
+    event OwnershipTransferred(address indexed previousAdmin, address indexed newAdmin);
+
+    // ----------------------------
+    // Modifiers
+    // ----------------------------
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "Not authorized");
+        _;
+    }
+
+    constructor() {
+        admin = msg.sender;
+    }
+
+    // ----------------------------
+    // Ownership Transfer
+    // ----------------------------
+    function transferOwnership(address newAdmin) external onlyAdmin {
+        require(newAdmin != address(0), "Invalid address");
+        pendingAdmin = newAdmin;
+        emit OwnershipTransferRequested(admin, newAdmin);
+    }
+
+    function acceptOwnership() external {
+        require(msg.sender == pendingAdmin, "Not authorized to accept");
+        address oldAdmin = admin;
+        admin = pendingAdmin;
+        pendingAdmin = address(0);
+        emit OwnershipTransferred(oldAdmin, admin);
+    }
+
+    // ----------------------------
+    // Admin Functions
+    // ----------------------------
+    receive() external payable {
+        masterBNBPool += msg.value;
+    }
+
+    function adminDeposit(uint256 _bcrdAmount) external payable onlyAdmin {
+        masterBNBPool += msg.value;
+        masterBCRDPool += _bcrdAmount;
+        emit AdminDeposit(msg.sender, msg.value, _bcrdAmount);
+    }
+
+    function setFees(uint256 _makerBP, uint256 _takerBP) external onlyAdmin {
+        require(_makerBP <= 1000 && _takerBP <= 1000, "Fee too high"); // max 10%
+        makerFeeBP = _makerBP;
+        takerFeeBP = _takerBP;
+        emit FeeUpdated(_makerBP, _takerBP);
+    }
+
+    function adminWithdrawBNB(uint256 amount) external onlyAdmin {
+        require(amount <= masterBNBPool, "Not enough BNB");
+        masterBNBPool -= amount;
+        payable(admin).transfer(amount);
+        emit AdminWithdrawal(amount);
+    }
+
+    // ----------------------------
+    // User Trade Functions
+    // ----------------------------
+    function openTrade(uint256 _bcrdUsed) external {
+        require(!userTrades[msg.sender].active, "Trade already open");
+        require(_bcrdUsed <= masterBCRDPool, "Insufficient BCRD pool");
+
+        userTrades[msg.sender] = UserTrade({
+            active: true,
+            usedBCRD: _bcrdUsed,
+            pnlBCRD: 0,
+            bnbFee: 0,
+            makerFee: 0,
+            takerFee: 0
+        });
+
+        masterBCRDPool -= _bcrdUsed;
+        userBCRDBalance[msg.sender] += _bcrdUsed; // Record that user is using this amount
+        emit TradeOpened(msg.sender, _bcrdUsed);
+    }
+
+    function closeTrade(int256 pnlBcrd, uint256 bnbReturned, uint256 gasFee) external {
+        UserTrade storage trade = userTrades[msg.sender];
+        require(trade.active, "No active trade");
+
+        uint256 makerFeeBNB = (bnbReturned * makerFeeBP) / 10000;
+        uint256 takerFeeBNB = (bnbReturned * takerFeeBP) / 10000;
+
+        // Add BNB + fees back to master pool
+        masterBNBPool += bnbReturned + makerFeeBNB + takerFeeBNB;
+
+        // --- Handle BCRD PnL ---
+        if (pnlBcrd > 0) {
+            // PROFIT — give BCRD to user, subtract from master
+            uint256 profit = uint256(pnlBcrd);
+            require(masterBCRDPool >= profit, "Insufficient master BCRD");
+            userBCRDBalance[msg.sender] += profit;
+            masterBCRDPool -= profit;
+        } else if (pnlBcrd < 0) {
+            // LOSS — deduct from user wallet, add to master
+            uint256 loss = uint256(-pnlBcrd);
+            require(userBCRDBalance[msg.sender] >= loss, "Not enough BCRD in wallet");
+            userBCRDBalance[msg.sender] -= loss;
+            masterBCRDPool += loss;
+        }
+
+        trade.pnlBCRD = pnlBcrd > 0 ? uint256(pnlBcrd) : 0;
+        trade.bnbFee = gasFee;
+        trade.makerFee = makerFeeBNB;
+        trade.takerFee = takerFeeBNB;
+        trade.active = false;
+
+        emit TradeClosed(msg.sender, trade.pnlBCRD, bnbReturned, makerFeeBNB, takerFeeBNB, gasFee);
+    }
+
+    // ----------------------------
+    // View Functions
+    // ----------------------------
+    function viewMasterWalletBNB() external view onlyAdmin returns (uint256) {
+        return masterBNBPool;
+    }
+
+    function viewMasterWalletBCRD() external view onlyAdmin returns (uint256) {
+        return masterBCRDPool;
+    }
+
+    function getUserBCRD(address user) external view returns (uint256) {
+        return userBCRDBalance[user];
+    }
+
+    function getUserTrade(address user) external view returns (UserTrade memory) {
+        return userTrades[user];
+    }
+}

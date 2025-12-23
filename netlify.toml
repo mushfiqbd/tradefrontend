@@ -1,0 +1,21 @@
+[build]
+  command = "npm run build"
+  publish = "build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Redirect API calls to backend (if using separate backend)
+# Uncomment if you want to proxy through Netlify:
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://your-backend-url.railway.app/api/:splat"
+#   status = 200
+#   force = true
+
+# [[redirects]]
+#   from = "/frontend/*"
+#   to = "https://your-backend-url.railway.app/frontend/:splat"
+#   status = 200
+#   force = true
+
