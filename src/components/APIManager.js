@@ -168,7 +168,7 @@ const APIManager = () => {
         message: error.message
       }, null, 2));
     }
-  }, [isBotRunning, currentPrice, bids, asks, highPrice, lowPrice, totalBaseVolume, filledOrders, tickerId, generateEndpointUrl, transactions, getTrades24h, getVolume24h, openPositions]);
+  }, [isBotRunning, currentPrice, bids, asks, highPrice, lowPrice, totalBaseVolume, filledOrders, tickerId, generateEndpointUrl, getTrades24h, getVolume24h, openPositions]);
 
   // Auto-refresh functionality
   useEffect(() => {
